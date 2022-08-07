@@ -10,27 +10,48 @@ function Account(id, username, lastName, firstName, role, departmentId,
 }
 
 const baseApi = "http://localhost:8080/api/v1"
-const accountList = [];
+let accountList = [];
 const url = baseApi + "/accounts";
+// paging
+let currentPage = 1;
+const size = 10;
+
+// sorting
+let sortField = "id";
+let isAsc = false;
 
 // crud service: start
 function getAccountList() {
+
+    let url = baseApi + "/accounts" + '?page='
+        + `${currentPage - 1}` + '&size=' + size
+        + "&sort=" + sortField + "," + (isAsc ? "asc" : "desc");
+
+    const searchValue = document.getElementById("search-account-input");
+    if (searchValue?.value) {
+        url += "&usernameOrFirstNameOrLastName.contains=" + searchValue.value;
+    }
+
     // call API from server
-    $.get(url, function (data, status) {
-
-        // reset list employees
-        this.accountList = [];
-
-        // error
-        if (status === "error") {
+    $.ajax({
+        url: url,
+        type: 'GET',
+        contentType: "application/json",
+        dataType: 'json', // datatype return
+        headers: {
+            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
+        },
+        success: function(data, textStatus, xhr) {
+            // success
+            parseAccountData(data);
+            fillAccountToTable();
+            fillAccountPaging(data.numberOfElements, data.totalPages);
+            fillAccountSorting();
+        },
+        error(jqXHR, textStatus, errorThrown) {
             // TODO
             alert("Error when loading data");
-            return;
         }
-
-        // success
-        parseAccountData(data);
-        fillAccountToTable();
     });
 }
 
@@ -58,6 +79,9 @@ function createAccount() {
         type: 'POST',
         data: JSON.stringify(account), // body
         contentType: "application/json", // type of body (json, xml, text)
+        headers: {
+            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
+        },
         success: function (data, textStatus, xhr) {
             hideModal();
             showSuccessAlert();
@@ -97,6 +121,9 @@ function updateAccount() {
         type: 'PUT',
         data: JSON.stringify(account),
         contentType: "application/json", // type of body (json, xml, text)
+        headers: {
+            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
+        },
         success: function (result) {
             // error
             if (!result) {
@@ -117,7 +144,10 @@ function deleteAccount(id) {
     $.ajax({
         url: url + "/" + id,
         type: 'DELETE',
-        success: function(result) {
+        headers: {
+            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
+        },
+        success: function (result) {
             // error
             if (!result) {
                 alert("Có lỗi khi xóa tài khoản");
@@ -144,12 +174,12 @@ function buildAccountTable() {
 }
 
 function parseAccountData(data) {
+    const newAccountList = [];
     data.content.forEach(function (item) {
-        accountList.push(new Account(item.id, item.username, item.lastName,
+        newAccountList.push(new Account(item.id, item.username, item.lastName,
             item.firstName, item.role, item.departmentId, item.departmentName));
     });
-    console.log("accountList")
-    console.log(accountList)
+    accountList = newAccountList;
 }
 
 function fillAccountToTable() {
@@ -160,6 +190,7 @@ function fillAccountToTable() {
             '<td>' + item.username + '</td>' +
             '<td>' + item.firstName + '</td>' +
             '<td>' + item.lastName + '</td>' +
+            '<td>' + item.role + '</td>' +
             '<td>' + item.departmentName + '</td>' +
             '<td>' +
             '<a class="edit" title="Edit" data-toggle="tooltip" onclick="openUpdateAccountModal('
@@ -191,12 +222,13 @@ function openUpdateAccountModal(id) {
     document.getElementById("firstName").value = accountList[index].firstName;
     document.getElementById("lastName").value = accountList[index].lastName;
     document.getElementById("role").value = accountList[index].role;
-    document.getElementById("departmentId").value = accountList[index].departmentId;
+    document.getElementById(
+        "departmentId").value = accountList[index].departmentId;
 
     openModal();
 }
 
-function openConfirmDelete (id) {
+function openConfirmDelete(id) {
     // get index from employee's id
     const index = accountList.findIndex(x => x.id === id);
     const name = accountList[index].name;
@@ -237,5 +269,74 @@ function saveAccount() {
     } else {
         updateAccount();
     }
+}
+
+// paging
+function fillAccountPaging(currentSize, totalPages) {
+    // prev
+    if (currentPage > 1) {
+        document.getElementById("account-previousPage-btn").disabled = false;
+    } else {
+        document.getElementById("account-previousPage-btn").disabled = true;
+    }
+
+    // next
+    if (currentPage < totalPages) {
+        document.getElementById("account-nextPage-btn").disabled = false;
+    } else {
+        document.getElementById("account-nextPage-btn").disabled = true;
+    }
+
+    // text
+    document.getElementById("account-page-info").innerHTML = currentSize
+        + " tài khoản của trang " + currentPage + " / " + totalPages;
+}
+
+function prevAccountPage() {
+    changeAccountPage(currentPage - 1);
+}
+
+function nextAccountPage() {
+    changeAccountPage(currentPage + 1);
+}
+
+function changeAccountPage(page) {
+    currentPage = page;
+    buildAccountTable();
+}
+
+// sorting
+function fillAccountSorting() {
+    const sortTypeClazz = isAsc ? "fa-sort-up" : "fa-sort-down";
+    const defaultSortType = "fa-sort";
+
+    switch (sortField) {
+        case 'username':
+            changeIconSort("username-sort", sortTypeClazz);
+            changeIconSort("fullname-sort", defaultSortType);
+            changeIconSort("departmentName-sort", defaultSortType);
+            break;
+    }
+}
+
+function changeIconSort(id, sortTypeClazz) {
+    document.getElementById(id).classList.remove("fa-sort", "fa-sort-up",
+        "fa-sort-down");
+    document.getElementById(id).classList.add(sortTypeClazz);
+}
+
+function changeAccountSort(field) {
+    if (field === sortField) {
+        isAsc = !isAsc;
+    } else {
+        sortField = field;
+        isAsc = true;
+    }
+    buildAccountTable();
+}
+
+//search
+function setupSearchEvent() {
+    buildAccountTable();
 }
 

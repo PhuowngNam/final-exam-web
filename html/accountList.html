@@ -1,5 +1,14 @@
 <div class="container">
   <div class="table-wrapper">
+    <!-- Search -->
+    <div class="search-bar">
+      <input class="form-control" type="text" id="search-account-input" placeholder="Tìm kiếm" data-toggle="tooltip">
+      <button type="button" class="btn btn-info add-new" data-toggle="modal"
+              onclick="setupSearchEvent()">
+        <i class="fas fa-search search-icon"></i>
+        Tìm kiếm
+      </button>
+    </div>
     <div class="table-title">
       <div class="row">
         <div class="col-sm-8">
@@ -18,7 +27,12 @@
       <thead>
       <tr>
         <th>ID</th>
-        <th>Tên tài khoản</th>
+        <th>
+          <a href="#" onclick="changeAccountSort('username')">
+            Tên tài khoản
+            <i id="username-sort" class="fa-solid fa-sort"></i>
+          </a>
+        </th>
         <th>Họ</th>
         <th>Tên</th>
         <th>Vai trò</th>
@@ -28,6 +42,15 @@
       <tbody>
       </tbody>
     </table>
+    <div class="page-nav">
+      <div>
+        <div class="page-info" id="account-page-info">
+          <!-- 10 records 1 of 10 -->
+        </div>
+        <input type="button" value="Trang trước" id="account-previousPage-btn" onclick="prevAccountPage()">
+        <input type="button" value="Trang tiếp theo" id="account-nextPage-btn" onclick="nextAccountPage()">
+      </div>
+    </div>
   </div>
 
   <!-- Modal HTML -->

@@ -32,7 +32,7 @@
 }
 
 table.table {
-    table-layout: fixed;
+    /*table-layout: fixed;*/
 }
 
 table.table tr th,
