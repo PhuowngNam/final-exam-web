@@ -59,6 +59,7 @@ function callLoginAPI(username, password) {
             password: password
         }), // body
         dataType: 'json', // datatype return
+        headers: langHeader,
         success: function (data, textStatus, xhr) {
             // save remember me
             const isRememberMe = document.getElementById("rememberMe").checked;
@@ -141,4 +142,8 @@ function showSuccessSnackBar(snackbarMessage) {
 
     // After 3 seconds, remove the show class from DIV
     setTimeout(function () { x.className = x.className.replace("show", ""); }, 3000);
+}
+
+const langHeader = {
+    "lang": localStorage.getItem("LANG") ? localStorage.getItem("LANG") : "vi"
 }

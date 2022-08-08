@@ -1,11 +1,11 @@
-var storage = {
+const storage = {
 
     saveRememberMe(isRememberMe) {
         localStorage.setItem("IS_REMEMBER_ME", isRememberMe);
     },
 
     getRememberMe() {
-        var rememberMeStr = localStorage.getItem("IS_REMEMBER_ME");
+        let rememberMeStr = localStorage.getItem("IS_REMEMBER_ME");
         if (rememberMeStr == null) {
             return true;
         }

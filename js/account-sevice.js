@@ -1,3 +1,12 @@
+const headers = {
+    "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD")),
+    "lang": langHeader.lang
+}
+
+const langHeader = {
+    "lang": localStorage.getItem("LANG") ? localStorage.getItem("LANG") : "vi"
+}
+
 function Account(id, username, lastName, firstName, role, departmentId,
     departmentName) {
     this.id = id;
@@ -38,9 +47,7 @@ function getAccountList() {
         type: 'GET',
         contentType: "application/json",
         dataType: 'json', // datatype return
-        headers: {
-            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
-        },
+        headers: headers,
         success: function(data, textStatus, xhr) {
             // success
             parseAccountData(data);
@@ -79,9 +86,7 @@ function createAccount() {
         type: 'POST',
         data: JSON.stringify(account), // body
         contentType: "application/json", // type of body (json, xml, text)
-        headers: {
-            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
-        },
+        headers: headers,
         success: function (data, textStatus, xhr) {
             hideModal();
             showSuccessAlert();
@@ -121,9 +126,7 @@ function updateAccount() {
         type: 'PUT',
         data: JSON.stringify(account),
         contentType: "application/json", // type of body (json, xml, text)
-        headers: {
-            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
-        },
+        headers: headers,
         success: function (result) {
             // error
             if (!result) {
@@ -144,9 +147,7 @@ function deleteAccount(id) {
     $.ajax({
         url: url + "/" + id,
         type: 'DELETE',
-        headers: {
-            "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD"))
-        },
+        headers: headers,
         success: function (result) {
             // error
             if (!result) {
