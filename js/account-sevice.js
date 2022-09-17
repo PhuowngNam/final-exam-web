@@ -1,10 +1,10 @@
+const langHeader = {
+    "lang": localStorage.getItem("LANG") ? localStorage.getItem("LANG") : "vi"
+}
+
 const headers = {
     "Authorization": "Basic " + btoa(localStorage.getItem("USERNAME") + ":" + localStorage.getItem("PASSWORD")),
     "lang": langHeader.lang
-}
-
-const langHeader = {
-    "lang": localStorage.getItem("LANG") ? localStorage.getItem("LANG") : "vi"
 }
 
 function Account(id, username, lastName, firstName, role, departmentId,
