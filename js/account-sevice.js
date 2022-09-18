@@ -7,15 +7,15 @@ const headers = {
     "lang": langHeader.lang
 }
 
-function Account(id, username, lastName, firstName, role, departmentId,
-    departmentName) {
+function Account(id, username, lastName, firstName, role, deptId,
+    deptName) {
     this.id = id;
     this.username = username;
     this.lastName = lastName;
     this.firstName = firstName;
     this.role = role;
-    this.departmentId = departmentId;
-    this.departmentName = departmentName;
+    this.departmentId = deptId;
+    this.departmentName = deptName;
 }
 
 const baseApi = "http://localhost:8080/api/v1"
@@ -38,7 +38,7 @@ function getAccountList() {
 
     const searchValue = document.getElementById("search-account-input");
     if (searchValue?.value) {
-        url += "&usernameOrFirstNameOrLastName.contains=" + searchValue.value;
+        url += "&search.contains=" + searchValue.value;
     }
 
     // call API from server
@@ -118,7 +118,8 @@ function updateAccount() {
         firstName: firstName,
         lastName: lastName,
         role: role,
-        departmentId: Number(departmentId)
+        departmentId: Number(departmentId),
+        isDeleted: 0
     };
 
     $.ajax({
@@ -178,7 +179,7 @@ function parseAccountData(data) {
     const newAccountList = [];
     data.content.forEach(function (item) {
         newAccountList.push(new Account(item.id, item.username, item.lastName,
-            item.firstName, item.role, item.departmentId, item.departmentName));
+            item.firstName, item.role, item.deptId, item.deptName));
     });
     accountList = newAccountList;
 }
@@ -327,6 +328,16 @@ function changeIconSort(id, sortTypeClazz) {
 }
 
 function changeAccountSort(field) {
+    if (field === sortField) {
+        isAsc = !isAsc;
+    } else {
+        sortField = field;
+        isAsc = true;
+    }
+    buildAccountTable();
+}
+
+function changeIdSort(field) {
     if (field === sortField) {
         isAsc = !isAsc;
     } else {
